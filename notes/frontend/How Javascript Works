@@ -1,0 +1,98 @@
+# JavaScript Under the Hood: Event Loop, Task Queue, and Microtask Queue
+
+## TL;DR
+JavaScript's asynchronous nature is managed through an event loop that orchestrates the execution of tasks from different queues. When asynchronous operations like `setTimeout` or Promises are encountered, their callbacks are placed in either the Task Queue or the Microtask Queue, respectively. The event loop prioritizes the Microtask Queue, ensuring all microtasks are processed before moving to the next task in the Task Queue. This mechanism prevents long-running tasks from blocking the main thread, maintaining a responsive user experience.
+
+## Key Takeaways
+- JavaScript's execution model is single-threaded, but it handles asynchronous operations efficiently using an event loop.
+- The Task Queue (or Callback Queue) holds tasks from asynchronous operations like `setTimeout`, `setInterval`, and DOM event handlers.
+- The Microtask Queue holds tasks from operations like Promises and `queueMicrotask()`.
+- The Event Loop continuously checks both queues, prioritizing the Microtask Queue over the Task Queue.
+- Microtasks are executed immediately after the current synchronous task or the previous microtask completes, before the event loop moves to the next task in the Task Queue.
+- Task starvation can occur if microtasks continuously populate the Microtask Queue, preventing tasks in the Task Queue from ever being executed.
+
+## Timestamped Sections
+- [00:00] Introduction to Asynchronous JavaScript
+- [00:20] Global Execution Context: Memory Phase and Code Phase
+- [01:05] The Role of the Call Stack
+- [01:50] Understanding the JavaScript Engine
+- [02:36] Call Stack vs. JS Engine
+- [03:06] JavaScript Engine's Role in Execution
+- [03:28] Global Execution Context and its Components
+- [04:00] Execution Flow of the Provided Code Snippet
+- [04:25] `setTimeout` Functionality
+- [05:56] Web APIs and their Role
+- [08:56] Task Queue and Event Loop Interaction
+- [10:00] Event Loop's Monitoring of Task Queue
+- [11:13] Execution Order of `setTimeout` Callbacks
+- [15:18] Promises and their Asynchronous Nature
+- [17:00] Microtask Queue vs. Task Queue
+- [21:13] Understanding Task Starvation
+
+## Core Concepts Explained
+
+### Global Execution Context
+The Global Execution Context (GEC) is the default execution context in JavaScript. When a script starts running, the GEC is created. It has two main phases:
+1.  **Memory Phase (Creation Phase):** In this phase, JavaScript allocates memory for variables and functions declared in the global scope. Variables declared with `var` are initialized with `undefined`, while `let` and `const` are not initialized and remain in the Temporal Dead Zone (TDZ) until their declaration is encountered.
+2.  **Code Phase (Execution Phase):** In this phase, JavaScript executes the code line by line. During this phase, variable assignments happen, and functions are called.
+
+### Call Stack
+The Call Stack is a data structure used by JavaScript engines to manage function execution. When a function is called, it's pushed onto the stack. When a function returns, it's popped off the stack. JavaScript is single-threaded, meaning it can only execute one thing at a time, and the Call Stack ensures this order.
+
+### Web APIs
+Web APIs are interfaces provided by the browser (or Node.js environment) that JavaScript can interact with. These APIs handle asynchronous operations like `setTimeout`, `setInterval`, DOM events, and network requests (`fetch`). When an asynchronous operation is initiated, it's handed off to the relevant Web API, and its callback function is placed in the appropriate queue (Task Queue or Microtask Queue) once the operation is complete.
+
+### Task Queue (Callback Queue)
+The Task Queue, also known as the Callback Queue, is a queue that holds tasks to be executed by the JavaScript engine. Asynchronous operations that are not Promise-related, such as `setTimeout` callbacks, `setInterval` callbacks, event handlers, and I/O operations, place their callbacks in this queue. Tasks are processed in a First-In, First-Out (FIFO) manner.
+
+### Microtask Queue
+The Microtask Queue holds tasks that have a higher priority than regular tasks in the Task Queue. These typically include the callbacks of Promises (`.then()`, `.catch()`, `.finally()`), `queueMicrotask()`, and `MutationObserver` callbacks. Microtasks are executed after the current synchronous task completes and before the event loop moves to the next task in the Task Queue. If multiple microtasks are added, they are all processed before the event loop proceeds.
+
+### Event Loop
+The Event Loop is a fundamental concept in JavaScript's concurrency model. It's a process that continuously monitors the Call Stack and the Task/Microtask Queues. Its primary function is to:
+1.  **Execute Synchronous Code:** Run code directly on the Call Stack until it's empty.
+2.  **Process Microtasks:** Once the Call Stack is empty, check the Microtask Queue. If there are microtasks, execute them one by one until the Microtask Queue is empty.
+3.  **Process Tasks:** After all microtasks are processed, the Event Loop checks the Task Queue. It picks the oldest task from the Task Queue and pushes it onto the Call Stack for execution.
+4.  **Repeat:** This cycle repeats continuously, ensuring that asynchronous operations are handled without blocking the main thread.
+
+### Task Starvation
+Task Starvation occurs when microtasks continuously populate the Microtask Queue, preventing tasks in the Task Queue from ever being picked up and executed by the event loop. Because microtasks have higher priority and are processed before any new tasks from the Task Queue, a rapid succession of microtasks can lead to the starvation of regular tasks, potentially freezing the application or causing delays in UI updates.
+
+## Interview Perspective
+
+### Why This Matters
+Understanding the event loop, task queues, and microtask queues is crucial for writing efficient and predictable asynchronous JavaScript code. Interviewers often probe this knowledge to assess a candidate's grasp of JavaScript's core execution model, especially in scenarios involving Promises, `setTimeout`, and other asynchronous operations. Misunderstanding these concepts can lead to unexpected behavior, performance issues, and race conditions.
+
+### Concepts Likely to Be Asked
+- **{Event Loop}**: Interviewers want to hear a clear explanation of how the event loop works, its role in managing asynchronous operations, and its interaction with the Call Stack, Task Queue, and Microtask Queue. They might ask about the priority of microtasks over tasks.
+- **{Task Queue vs. Microtask Queue}**: Be prepared to explain the difference between these two queues, what types of callbacks go into each, and their respective priorities in the event loop's execution cycle.
+- **{Promises and Asynchronous Execution}**: Understand how Promises leverage the Microtask Queue and how their `.then()` callbacks are handled asynchronously.
+- **{setTimeout vs. Promises}**: Be able to articulate the difference in their queuing mechanisms (Task Queue vs. Microtask Queue) and how this affects execution order.
+- **{Task Starvation}**: Explain what task starvation is, how it occurs (e.g., with rapidly chaining Promises), and its implications for application responsiveness.
+
+### At a Glance Checkpoints
+- [ ] Can you explain the three main components of JavaScript's asynchronous model: Call Stack, Task Queue, and Microtask Queue?
+- [ ] Can you describe the execution order when `setTimeout` and a Promise are used in the same script?
+- [ ] Can you explain what happens if a `setTimeout` callback itself schedules another `setTimeout`?
+- [ ] Can you explain what task starvation is and how it relates to microtasks?
+
+## Quick Reference
+- **Microtasks:** Higher priority, executed after current task and before next task queue item. Examples: Promises, `queueMicrotask()`, `MutationObserver`.
+- **Tasks (Macrotasks):** Lower priority, executed after all microtasks are cleared. Examples: `setTimeout`, `setInterval`, DOM events, I/O.
+- **Event Loop:** Orchestrates execution by moving tasks from queues to the Call Stack.
+- **Promises:** Use the Microtask Queue. Chaining promises can lead to a cascade of microtasks.
+- **`setTimeout(callback, 0)`:** Schedules `callback` to run after the current synchronous code finishes and the event loop has a chance to process the Task Queue. It does not mean immediate execution.
+- **Task Starvation:** Occurs when microtasks continuously populate the Microtask Queue, preventing tasks in the Task Queue from running.
+
+**Metadata**
+**Category:** Frontend
+**Tags:** `javascript`, `event loop`, `async`, `promises`, `setTimeout`, `task queue`, `microtask queue`, `concurrency`
+**Interview Relevance:** Must Know
+**Difficulty:** Intermediate
+**Est. Read Time:** 5 min
+
+---
+
+**Source:** https://www.youtube.com/watch?v=fFd8OhrHfIM  
+**Saved:** 2026-05-06T18:11:04.489Z
+**AI Source:** gemini
