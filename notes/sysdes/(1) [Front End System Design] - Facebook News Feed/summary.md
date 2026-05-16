@@ -101,3 +101,8 @@ FE SD
 **Source:** https://www.youtube.com/watch?v=5vyKhm2NTfw&list=PLI9W87-Dqn7j_x6QtR6sUjycJR7nQLBqT&index=1&t=5s  
 **Saved:** 2026-05-16T08:49:46.137Z
 **AI Source:** gemini
+
+<img width="1426" height="619" alt="image" src="https://github.com/user-attachments/assets/f6c0f770-558e-4233-a021-e36dcfa09e72" />
+<img width="401" height="257" alt="image" src="https://github.com/user-attachments/assets/8d717e1a-61ef-478c-a1db-2d06f76376d9" />
+
+
